@@ -1,11 +1,3 @@
-# Municipal Corporation Management System — Phase 1 (Authentication Module)
-
-This is **Phase 1** of the project: login, authentication, session
-management, logout, and role-based dashboard skeletons for **Citizen**
-and **Administrator**. No other municipal service module (Birth/Death
-Registration, License, Tax, Grievance, Sanitation) is implemented yet —
-they appear only as "Coming Soon" placeholder cards on the dashboards,
-matching the full system design in `UseCase.jpg` / `ClassDiagram.jpg`.
 
 ## Tech Stack
 - Python 3 / Flask (Blueprints)
@@ -103,8 +95,7 @@ Visit **http://127.0.0.1:5000** in your browser.
 
 ## What's Next
 Once this authentication module is verified end-to-end, the following
-modules (already scoped out in `ClassDiagram.jpg`, `UseCase.jpg`, and
-`ActivityDiagram.jpg`) will be added on top of it:
+modules will be added on top of it:
 - Birth / Death Registration (with hospital certificate code verification)
 - Vehicle License application & renewal
 - Tax Payment (with tax calculation)
