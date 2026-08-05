@@ -1,0 +1,63 @@
+/* style.css — simple blue-and-white government portal theme */
+
+:root {
+    --gov-blue: #0b3d91;
+    --gov-blue-dark: #072a66;
+    --gov-light: #f4f7fb;
+}
+
+body {
+    background-color: var(--gov-light);
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.gov-navbar {
+    background-color: var(--gov-blue);
+}
+
+.login-card {
+    border: none;
+    border-radius: 12px;
+    margin-top: 4rem;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+.module-card {
+    border: 1px solid #dde3ee;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    color: #212529;
+}
+
+.module-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(11, 61, 145, 0.15);
+    border-color: var(--gov-blue);
+}
+
+.btn-primary {
+    background-color: var(--gov-blue);
+    border-color: var(--gov-blue);
+}
+
+.btn-primary:hover {
+    background-color: var(--gov-blue-dark);
+    border-color: var(--gov-blue-dark);
+}
+
+.btn-outline-primary {
+    color: var(--gov-blue);
+    border-color: var(--gov-blue);
+}
+
+.btn-outline-primary:hover,
+.btn-check:checked + .btn-outline-primary {
+    background-color: var(--gov-blue);
+    border-color: var(--gov-blue);
+}
+
+footer {
+    border-top: 1px solid #dde3ee;
+}
