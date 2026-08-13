@@ -22,6 +22,8 @@ from config import SECRET_KEY
 from routes.auth import auth_bp
 from routes.citizen import citizen_bp
 from routes.admin import admin_bp
+from routes.registration import registration_bp
+from routes.hospital import hospital_bp
 
 
 def create_app():
@@ -32,6 +34,8 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(citizen_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(registration_bp)
+    app.register_blueprint(hospital_bp)
 
     @app.route("/")
     def index():

@@ -8,7 +8,7 @@
 <div class="row g-3">
     {% for module in modules %}
     <div class="col-sm-6 col-lg-4">
-        <a href="{{ url_for('admin.module_placeholder', module_name=module.name.lower().replace(' ', '-')) }}"
+        <a href="{{ module.url if module.url else url_for('admin.module_placeholder', module_name=module.name.lower().replace(' ', '-')) }}"
            class="text-decoration-none">
             <div class="card module-card h-100 shadow-sm">
                 <div class="card-body text-center py-4">

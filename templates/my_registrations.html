@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-list-check me-2"></i>My Registrations &amp; Applications</h4>
+    <a href="{{ url_for('citizen.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Dashboard
+    </a>
+</div>
+
+{% if items %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle bg-white shadow-sm rounded">
+        <thead>
+            <tr>
+                <th>Registration ID</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>
+                    {% if item.type == 'Birth Registration' %}BR{{ '%03d' % item.id }}
+                    {% elif item.type == 'Death Registration' %}DR{{ '%03d' % item.id }}
+                    {% else %}LR{{ '%03d' % item.id }}
+                    {% endif %}
+                </td>
+                <td>{{ item.type }}</td>
+                <td>{{ item.record_date }}</td>
+                <td>
+                    {% if item.status == 'Pending' %}
+                        <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
+                    {% elif item.status == 'Approved' %}
+                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Approved</span>
+                    {% else %}
+                        <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Rejected</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card shadow-sm">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-inbox fs-1 text-muted"></i>
+        <h6 class="mt-3 text-muted">You haven't submitted any registrations or applications yet.</h6>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

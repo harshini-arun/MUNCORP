@@ -1,26 +1,35 @@
 """
 routes/admin.py
 ----------------
-Administrator dashboard (skeleton only).
+Administrator dashboard.
 
-Cards correspond to the Administrator's future responsibilities from
-UseCase.jpg: approving/rejecting registrations, licenses, sanitation
-requests, and responding to grievances. Not yet implemented.
+Birth Registrations, Death Registrations, and License Applications are now
+live (see routes/registration.py). Citizens, Tax Payments, Grievances, and
+Sanitation Requests remain "Coming Soon" placeholders.
 """
 
-from flask import Blueprint, render_template, session
+from flask import Blueprint, render_template, session, url_for
 from routes.auth import role_required
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
-FUTURE_MODULES = [
-    {"name": "Birth Registrations", "icon": "bi-file-earmark-medical"},
-    {"name": "Death Registrations", "icon": "bi-file-earmark-text"},
-    {"name": "Licenses", "icon": "bi-card-checklist"},
-    {"name": "Tax Payments", "icon": "bi-cash-coin"},
-    {"name": "Grievances", "icon": "bi-megaphone"},
-    {"name": "Sanitation Requests", "icon": "bi-trash"},
-]
+
+def _modules():
+    """Built inside a request context so url_for() works."""
+    return [
+        {"name": "Citizens", "icon": "bi-people"},
+        {"name": "Birth Registrations", "icon": "bi-file-earmark-medical",
+         "url": url_for("registration.admin_birth_registrations")},
+        {"name": "Death Registrations", "icon": "bi-file-earmark-text",
+         "url": url_for("registration.admin_death_registrations")},
+        {"name": "License Applications", "icon": "bi-card-checklist",
+         "url": url_for("registration.admin_licenses")},
+        {"name": "Hospital Certificate Codes", "icon": "bi-hospital",
+         "url": url_for("hospital.list_certificates")},
+        {"name": "Tax Payments", "icon": "bi-cash-coin"},
+        {"name": "Grievances", "icon": "bi-megaphone"},
+        {"name": "Sanitation Requests", "icon": "bi-trash"},
+    ]
 
 
 @admin_bp.route("/dashboard")
@@ -29,7 +38,7 @@ def dashboard():
     return render_template(
         "admin_dashboard.html",
         user_name=session.get("userName"),
-        modules=FUTURE_MODULES,
+        modules=_modules(),
     )
 
 
