@@ -24,7 +24,9 @@
                 <td>
                     {% if item.type == 'Birth Registration' %}BR{{ '%03d' % item.id }}
                     {% elif item.type == 'Death Registration' %}DR{{ '%03d' % item.id }}
-                    {% else %}LR{{ '%03d' % item.id }}
+                    {% elif item.type == 'License Registration' %}LR{{ '%03d' % item.id }}
+                    {% elif item.type == 'Sanitation Request' %}SR{{ '%03d' % item.id }}
+                    {% else %}{{ '%03d' % item.id }}
                     {% endif %}
                 </td>
                 <td>{{ item.type }}</td>
@@ -32,8 +34,8 @@
                 <td>
                     {% if item.status == 'Pending' %}
                         <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
-                    {% elif item.status == 'Approved' %}
-                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Approved</span>
+                    {% elif item.status in ['Approved', 'Scheduled'] %}
+                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>{{ item.status }}</span>
                     {% else %}
                         <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Rejected</span>
                     {% endif %}

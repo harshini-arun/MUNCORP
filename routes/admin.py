@@ -55,8 +55,8 @@ def _get_pending_counts(zone_min, zone_max):
 
         cur.execute(
             "SELECT COUNT(*) FROM Sanitation_Request "
-            "WHERE Status='Pending' AND Citizen_ID BETWEEN %s AND %s",
-            (zone_min, zone_max))
+            "WHERE Status='Pending'"
+        )
         counts["sanitation"] = cur.fetchone()[0]
 
         cur.execute(

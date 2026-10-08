@@ -109,66 +109,59 @@ def sanitation_request():
 
 # ====================================================================
 # Admin: view + schedule/reject requests
+# Grouped by location (Area PIN), showing only pending request count.
+# Priority ranked: locations with the most pending requests appear first.
 # ====================================================================
 @sanitation_bp.route("/admin/sanitation-requests", methods=["GET"])
 @role_required("admin")
 def admin_sanitation_requests():
-    zone_min = zone_max = None
-    try:
-        zone_min, zone_max = get_admin_zone(session["userId"])
-    except (ValueError, MySQLError) as exc:
-        flash(f"Could not load your zone: {exc}", "error")
-        return redirect(url_for("admin.dashboard"))
-
-    rows = []
+    locations = []
+    history = []
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         cursor.execute(
             """
-            SELECT s.Request_ID, s.Citizen_ID, s.Area_PIN, s.Requested_Date,
-                   s.Schedule_Date, s.Status, c.name AS citizen_name,
-                   (SELECT COUNT(*) FROM Sanitation_Request s2
-                    WHERE s2.Area_PIN = s.Area_PIN AND s2.Status = 'Pending') AS duplicate_count
-            FROM Sanitation_Request s
-            LEFT JOIN Citizen c ON c.citizenId = s.Citizen_ID
-            WHERE s.Citizen_ID BETWEEN %s AND %s
-            ORDER BY FIELD(s.Status, 'Pending', 'Scheduled', 'Rejected'),
-                     duplicate_count DESC, s.Requested_Date ASC
-            """,
-            (zone_min, zone_max)
+            SELECT Area_PIN AS area_pin,
+                   COUNT(*) AS pending_count,
+                   MIN(Requested_Date) AS earliest_date
+            FROM Sanitation_Request
+            WHERE Status = 'Pending'
+            GROUP BY Area_PIN
+            ORDER BY pending_count DESC, earliest_date ASC
+            """
         )
-        records = cursor.fetchall()
+        locations = cursor.fetchall()
+
+        cursor.execute(
+            """
+            SELECT Request_ID AS id, Area_PIN AS area_pin, Requested_Date AS requested_date,
+                   Schedule_Date AS schedule_date, Status AS status
+            FROM Sanitation_Request
+            WHERE Status IN ('Scheduled', 'Rejected')
+            ORDER BY COALESCE(Schedule_Date, Requested_Date) DESC, Request_ID DESC
+            """
+        )
+        history = cursor.fetchall()
+
         cursor.close()
         connection.close()
-
-        rows = [{
-            "id": r["Request_ID"],
-            "status": r["Status"],
-            "citizen_name": r["citizen_name"] or "Unknown",
-            "citizen_id": r["Citizen_ID"],
-            "area_pin": r["Area_PIN"],
-            "requested_date": r["Requested_Date"],
-            "schedule_date": r["Schedule_Date"],
-            "duplicate_count": r["duplicate_count"],
-        } for r in records]
-
     except MySQLError:
         flash("Could not load sanitation requests.", "error")
-        rows = []
+        locations = []
+        history = []
 
     return render_template(
         "admin_sanitation_list.html",
-        rows=rows,
-        zone_min=zone_min,
-        zone_max=zone_max,
+        locations=locations,
+        history=history,
         back_url=url_for("admin.dashboard"),
     )
 
 
-@sanitation_bp.route("/admin/sanitation-requests/<int:request_id>/schedule", methods=["POST"])
+@sanitation_bp.route("/admin/sanitation-requests/area/<area_pin>/schedule", methods=["POST"])
 @role_required("admin")
-def admin_schedule_sanitation(request_id):
+def admin_schedule_sanitation_area(area_pin):
     schedule_date_raw = request.form.get("schedule_date", "").strip()
     schedule_date = _parse_date(schedule_date_raw)
     redirect_url = url_for("sanitation.admin_sanitation_requests")
@@ -181,86 +174,60 @@ def admin_schedule_sanitation(request_id):
         return redirect(redirect_url)
 
     try:
-        zone_min, zone_max = get_admin_zone(session["userId"])
-    except (ValueError, MySQLError) as exc:
-        flash(f"Could not verify your zone: {exc}", "error")
-        return redirect(redirect_url)
-
-    try:
         connection = get_db_connection()
-        cursor = connection.cursor(dictionary=True)
+        cursor = connection.cursor()
         cursor.execute(
-            "SELECT Citizen_ID, Status FROM Sanitation_Request WHERE Request_ID = %s",
-            (request_id,)
+            """
+            UPDATE Sanitation_Request
+            SET Status = 'Scheduled', Schedule_Date = %s
+            WHERE Area_PIN = %s AND Status = 'Pending'
+            """,
+            (schedule_date, area_pin)
         )
-        record = cursor.fetchone()
-
-        if not record:
-            flash("Request not found.", "error")
-        elif not (zone_min <= record["Citizen_ID"] <= zone_max):
-            flash("That request is not in your assigned zone.", "error")
-        elif record["Status"] != "Pending":
-            flash("This request has already been handled.", "error")
-        else:
-            cursor.execute(
-                """
-                UPDATE Sanitation_Request
-                SET Status = 'Scheduled', Schedule_Date = %s
-                WHERE Request_ID = %s
-                """,
-                (schedule_date, request_id)
-            )
-            connection.commit()
-            flash(f"Request #{request_id} scheduled for {schedule_date}.", "success")
-
+        connection.commit()
+        updated = cursor.rowcount
         cursor.close()
         connection.close()
 
+        if updated > 0:
+            flash(f"Scheduled {updated} request(s) for PIN code {area_pin} on {schedule_date}.", "success")
+        else:
+            flash(f"No pending requests found for PIN code {area_pin}.", "info")
+
     except MySQLError:
-        flash("Could not schedule the request. Please try again later.", "error")
+        flash("Could not schedule requests. Please try again later.", "error")
 
     return redirect(redirect_url)
 
 
-@sanitation_bp.route("/admin/sanitation-requests/<int:request_id>/reject", methods=["POST"])
+@sanitation_bp.route("/admin/sanitation-requests/area/<area_pin>/reject", methods=["POST"])
 @role_required("admin")
-def admin_reject_sanitation(request_id):
+def admin_reject_sanitation_area(area_pin):
     redirect_url = url_for("sanitation.admin_sanitation_requests")
 
     try:
-        zone_min, zone_max = get_admin_zone(session["userId"])
-    except (ValueError, MySQLError) as exc:
-        flash(f"Could not verify your zone: {exc}", "error")
-        return redirect(redirect_url)
-
-    try:
         connection = get_db_connection()
-        cursor = connection.cursor(dictionary=True)
+        cursor = connection.cursor()
         cursor.execute(
-            "SELECT Citizen_ID, Status FROM Sanitation_Request WHERE Request_ID = %s",
-            (request_id,)
+            """
+            UPDATE Sanitation_Request
+            SET Status = 'Rejected'
+            WHERE Area_PIN = %s AND Status = 'Pending'
+            """,
+            (area_pin,)
         )
-        record = cursor.fetchone()
-
-        if not record:
-            flash("Request not found.", "error")
-        elif not (zone_min <= record["Citizen_ID"] <= zone_max):
-            flash("That request is not in your assigned zone.", "error")
-        elif record["Status"] != "Pending":
-            flash("This request has already been handled.", "error")
-        else:
-            cursor.execute(
-                "UPDATE Sanitation_Request SET Status = 'Rejected' WHERE Request_ID = %s",
-                (request_id,)
-            )
-            connection.commit()
-            flash(f"Request #{request_id} rejected.", "success")
-
+        connection.commit()
+        updated = cursor.rowcount
         cursor.close()
         connection.close()
 
+        if updated > 0:
+            flash(f"Rejected {updated} pending request(s) for PIN code {area_pin}.", "success")
+        else:
+            flash(f"No pending requests found for PIN code {area_pin}.", "info")
+
     except MySQLError:
-        flash("Could not reject the request. Please try again later.", "error")
+        flash("Could not reject requests. Please try again later.", "error")
 
     return redirect(redirect_url)
 

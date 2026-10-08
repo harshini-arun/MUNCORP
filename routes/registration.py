@@ -218,7 +218,8 @@ def admin_birth_registrations():
 @role_required("admin")
 def admin_birth_action(reg_id, action):
     return _update_status("Birth_Registration", "Birth_Reg_ID", reg_id, action,
-                           url_for("registration.admin_birth_registrations"))
+                           url_for("registration.admin_birth_registrations"),
+                           citizen_col="Parent_Citizen_ID")
 
 
 # ====================================================================
@@ -490,30 +491,40 @@ def admin_license_action(reg_id, action):
 # ====================================================================
 # Shared: status update helper (used by all three Approve/Reject routes)
 # ====================================================================
-def _update_status(table, pk_column, record_id, action, redirect_url):
+def _update_status(table, pk_column, record_id, action, redirect_url, citizen_col="Citizen_ID"):
     if action not in ("approve", "reject"):
         flash("Invalid action.", "error")
         return redirect(redirect_url)
 
     new_status = "Approved" if action == "approve" else "Rejected"
 
+    zone_min = zone_max = None
+    try:
+        zone_min, zone_max = get_admin_zone(session["userId"])
+    except (ValueError, MySQLError) as exc:
+        flash(f"Could not verify your zone: {exc}", "error")
+        return redirect(redirect_url)
+
     try:
         connection = get_db_connection()
-        cursor = connection.cursor()
-        # Table/column names are fixed, developer-controlled strings (never
-        # user input) so it's safe to place them in the query text; the
-        # value itself is still passed as a parameter.
-        query = f"UPDATE {table} SET Status = %s WHERE {pk_column} = %s"
-        cursor.execute(query, (new_status, record_id))
-        connection.commit()
-        affected = cursor.rowcount
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute(f"SELECT {citizen_col} AS cid, Status FROM {table} WHERE {pk_column} = %s", (record_id,))
+        record = cursor.fetchone()
+
+        if not record:
+            flash("Record not found.", "error")
+        elif not (zone_min <= record["cid"] <= zone_max):
+            flash("That record is not in your assigned zone.", "error")
+        elif record["Status"] != "Pending":
+            flash("This record has already been processed.", "error")
+        else:
+            cursor.execute(f"UPDATE {table} SET Status = %s WHERE {pk_column} = %s", (new_status, record_id))
+            connection.commit()
+            flash(f"Record #{record_id} marked as {new_status}.", "success")
+
         cursor.close()
         connection.close()
-
-        if affected:
-            flash(f"Record #{record_id} marked as {new_status}.", "success")
-        else:
-            flash("Record not found.", "error")
 
     except MySQLError:
         flash("Could not update the record. Please try again later.", "error")
@@ -561,6 +572,17 @@ def my_registrations():
             SELECT License_ID AS id, 'License Registration' AS type,
                    Renewal_Date AS record_date, Status AS status
             FROM License
+            WHERE Citizen_ID = %s
+            """,
+            (citizen_id,)
+        )
+        items.extend(cursor.fetchall())
+
+        cursor.execute(
+            """
+            SELECT Request_ID AS id, 'Sanitation Request' AS type,
+                   Requested_Date AS record_date, Status AS status
+            FROM Sanitation_Request
             WHERE Citizen_ID = %s
             """,
             (citizen_id,)
