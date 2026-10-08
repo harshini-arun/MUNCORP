@@ -1,63 +1,498 @@
-/* style.css — simple blue-and-white government portal theme */
+/* =====================================================================
+   style.css — MUNCORPPY Municipal Corporation Portal
+   Government-grade professional theme built on Bootstrap 5.3.
+   All overrides target Bootstrap utility classes so HTML stays unchanged.
+   ===================================================================== */
 
+/* ── Google Fonts (Inter — clean, government-friendly typeface) ─────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ── Design tokens ──────────────────────────────────────────────────── */
 :root {
-    --gov-blue: #0b3d91;
-    --gov-blue-dark: #072a66;
-    --gov-light: #f4f7fb;
+    /* Brand palette — deep government blue with amber accent */
+    --gov-blue:        #1a3a6b;   /* primary deep navy */
+    --gov-blue-mid:    #234f9a;   /* mid-blue for hover */
+    --gov-blue-dark:   #0f2447;   /* darkest navy, topbar top stripe */
+    --gov-blue-light:  #dbe6f7;   /* tint for backgrounds */
+    --gov-amber:       #d4a017;   /* accent / India-flag saffron */
+    --gov-amber-dark:  #b8880f;
+    --gov-green:       #1a7a3e;   /* approved / success */
+    --gov-red:         #b91c1c;   /* rejected / danger */
+    --gov-orange:      #b45309;   /* pending / warning text */
+
+    /* Neutrals */
+    --gov-bg:          #f0f4fa;   /* page background */
+    --gov-surface:     #ffffff;   /* card / form surface */
+    --gov-border:      #c8d5e8;   /* subtle border */
+    --gov-text:        #1a2840;   /* primary text */
+    --gov-text-muted:  #5a6a82;   /* secondary/muted text */
+    --gov-text-light:  #8a9bb8;   /* placeholder / hint */
+
+    /* Typography */
+    --gov-font: 'Inter', 'Segoe UI', Arial, sans-serif;
+    --gov-font-size-base: 0.925rem;
+
+    /* Spacing */
+    --gov-card-radius: 6px;
+    --gov-btn-radius:  4px;
+    --gov-input-radius: 4px;
+
+    /* Shadows */
+    --gov-shadow-sm: 0 1px 3px rgba(26,58,107,0.10), 0 1px 2px rgba(0,0,0,0.06);
+    --gov-shadow:    0 2px 8px rgba(26,58,107,0.12), 0 1px 3px rgba(0,0,0,0.08);
+    --gov-shadow-lg: 0 4px 16px rgba(26,58,107,0.14), 0 2px 6px rgba(0,0,0,0.08);
 }
+
+/* ── Base ───────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { font-size: 16px; }
 
 body {
-    background-color: var(--gov-light);
-    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: var(--gov-bg);
+    font-family: var(--gov-font);
+    font-size: var(--gov-font-size-base);
+    color: var(--gov-text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
 }
 
-.gov-navbar {
-    background-color: var(--gov-blue);
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--gov-font);
+    font-weight: 600;
+    color: var(--gov-text);
+    letter-spacing: -0.01em;
 }
 
-.login-card {
-    border: none;
-    border-radius: 12px;
-    margin-top: 4rem;
+h3 { font-size: 1.35rem; }
+h4 { font-size: 1.15rem; }
+h5 { font-size: 1.0rem;  }
+h6 { font-size: 0.9rem;  }
+
+a { color: var(--gov-blue-mid); }
+a:hover { color: var(--gov-blue); }
+
+/* ── Navigation bar ─────────────────────────────────────────────────── */
+.gov-navbar,
+.navbar.gov-navbar {
+    background: linear-gradient(135deg, var(--gov-blue-dark) 0%, var(--gov-blue) 100%);
+    border-bottom: 3px solid var(--gov-amber);
+    padding-top: 0;
+    padding-bottom: 0;
+    min-height: 60px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
 
+.gov-navbar .navbar-brand {
+    font-family: var(--gov-font);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #ffffff !important;
+    padding: 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.gov-navbar .navbar-brand i {
+    font-size: 1.3rem;
+    color: var(--gov-amber);
+}
+
+.gov-navbar .text-white {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.gov-navbar .btn-outline-light {
+    border-color: rgba(255,255,255,0.45);
+    color: rgba(255,255,255,0.92);
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 0.3rem 0.85rem;
+    border-radius: var(--gov-btn-radius);
+    transition: all 0.15s ease;
+}
+
+.gov-navbar .btn-outline-light:hover {
+    background-color: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.75);
+    color: #ffffff;
+}
+
+/* ── Page layout ────────────────────────────────────────────────────── */
+.container {
+    max-width: 1140px;
+}
+
+/* Top-of-page heading area */
+h3.page-title,
+.mb-4 h3, .mb-4 > h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gov-blue);
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--gov-blue-light);
+    margin-bottom: 1rem !important;
+}
+
+/* ── Cards ──────────────────────────────────────────────────────────── */
 .card {
-    border-radius: 10px;
+    border: 1px solid var(--gov-border);
+    border-radius: var(--gov-card-radius);
+    background-color: var(--gov-surface);
+    box-shadow: var(--gov-shadow-sm);
 }
 
+.card-body {
+    padding: 1.35rem 1.5rem;
+}
+
+.card.shadow-sm {
+    box-shadow: var(--gov-shadow-sm) !important;
+}
+
+/* Module dashboard cards */
 .module-card {
-    border: 1px solid #dde3ee;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    color: #212529;
+    border: 1px solid var(--gov-border);
+    border-radius: var(--gov-card-radius);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    color: var(--gov-text);
+    background-color: var(--gov-surface);
 }
 
 .module-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0.5rem 1rem rgba(11, 61, 145, 0.15);
+    transform: translateY(-4px);
+    box-shadow: var(--gov-shadow-lg) !important;
     border-color: var(--gov-blue);
+    border-top: 3px solid var(--gov-blue);
+}
+
+.module-card .card-body {
+    padding: 1.75rem 1rem;
+}
+
+.module-card i.bi.fs-2 {
+    font-size: 2rem !important;
+    color: var(--gov-blue) !important;
+    opacity: 0.85;
+}
+
+.module-card h6 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gov-text);
+    margin-top: 0.6rem !important;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+}
+
+/* Login card */
+.login-card {
+    border: none;
+    border-radius: 8px;
+    margin-top: 4rem;
+    box-shadow: var(--gov-shadow-lg);
+    border-top: 4px solid var(--gov-blue);
+}
+
+/* ── Pending count badge on module cards ─────────────────────────────── */
+.badge.rounded-pill.bg-danger {
+    font-size: 0.72rem;
+    font-weight: 700;
+    min-width: 1.4rem;
+    padding: 0.28em 0.52em;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────── */
+.btn {
+    font-family: var(--gov-font);
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: var(--gov-btn-radius);
+    padding: 0.45rem 1.1rem;
+    letter-spacing: 0.01em;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-sm {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.75rem;
 }
 
 .btn-primary {
     background-color: var(--gov-blue);
     border-color: var(--gov-blue);
+    color: #fff;
 }
-
-.btn-primary:hover {
-    background-color: var(--gov-blue-dark);
-    border-color: var(--gov-blue-dark);
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--gov-blue-mid);
+    border-color: var(--gov-blue-mid);
+    box-shadow: 0 2px 6px rgba(26,58,107,0.35);
+    color: #fff;
+}
+.btn-primary:active {
+    background-color: var(--gov-blue-dark) !important;
+    border-color: var(--gov-blue-dark) !important;
 }
 
 .btn-outline-primary {
     color: var(--gov-blue);
     border-color: var(--gov-blue);
 }
-
 .btn-outline-primary:hover,
 .btn-check:checked + .btn-outline-primary {
     background-color: var(--gov-blue);
     border-color: var(--gov-blue);
+    color: #fff;
 }
 
+.btn-outline-secondary {
+    color: var(--gov-text-muted);
+    border-color: var(--gov-border);
+}
+.btn-outline-secondary:hover {
+    background-color: var(--gov-blue-light);
+    border-color: var(--gov-border);
+    color: var(--gov-blue);
+}
+
+.btn-success {
+    background-color: var(--gov-green);
+    border-color: var(--gov-green);
+}
+.btn-success:hover {
+    background-color: #155c30;
+    border-color: #155c30;
+}
+
+.btn-outline-danger {
+    color: var(--gov-red);
+    border-color: var(--gov-red);
+}
+.btn-outline-danger:hover {
+    background-color: var(--gov-red);
+    border-color: var(--gov-red);
+    color: #fff;
+}
+
+/* ── Form controls ──────────────────────────────────────────────────── */
+.form-control,
+.form-select {
+    border: 1px solid var(--gov-border);
+    border-radius: var(--gov-input-radius);
+    font-size: 0.9rem;
+    color: var(--gov-text);
+    background-color: #fff;
+    padding: 0.5rem 0.85rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--gov-blue);
+    box-shadow: 0 0 0 3px rgba(26,58,107,0.12);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: var(--gov-text-light);
+    font-size: 0.875rem;
+}
+
+.form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gov-text);
+    margin-bottom: 0.35rem;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+}
+
+.form-text {
+    font-size: 0.8rem;
+    color: var(--gov-text-muted);
+}
+
+/* Role-toggle buttons on login page */
+.btn-check + .btn-outline-primary {
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+/* ── Tables ─────────────────────────────────────────────────────────── */
+.table {
+    font-size: 0.875rem;
+    color: var(--gov-text);
+    border-color: var(--gov-border);
+    margin-bottom: 0;
+}
+
+.table thead {
+    background-color: var(--gov-blue);
+    color: #fff;
+}
+
+.table thead th {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
+    border-bottom: none;
+    white-space: nowrap;
+}
+
+.table tbody tr {
+    transition: background-color 0.1s ease;
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--gov-blue-light) !important;
+}
+
+.table tbody td {
+    padding: 0.7rem 1rem;
+    vertical-align: middle;
+    border-color: #e8edf5;
+}
+
+.table-responsive {
+    border-radius: var(--gov-card-radius);
+    border: 1px solid var(--gov-border);
+    box-shadow: var(--gov-shadow-sm);
+    overflow: hidden;
+}
+
+/* ── Alerts ─────────────────────────────────────────────────────────── */
+.alert {
+    border-radius: var(--gov-card-radius);
+    font-size: 0.875rem;
+    border-left-width: 4px;
+    padding: 0.85rem 1.1rem;
+}
+
+.alert-danger {
+    background-color: #fef2f2;
+    border-color: var(--gov-red);
+    color: #7f1d1d;
+}
+
+.alert-success {
+    background-color: #f0fdf4;
+    border-color: var(--gov-green);
+    color: #14532d;
+}
+
+.alert-info {
+    background-color: #eff6ff;
+    border-color: var(--gov-blue-mid);
+    color: var(--gov-blue);
+}
+
+.alert-warning {
+    background-color: #fffbeb;
+    border-color: var(--gov-amber);
+    color: #78350f;
+}
+
+/* ── Badges ─────────────────────────────────────────────────────────── */
+.badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border-radius: 3px;
+    padding: 0.28em 0.55em;
+}
+
+.badge.bg-success  { background-color: var(--gov-green) !important; }
+.badge.bg-danger   { background-color: var(--gov-red)   !important; }
+.badge.bg-warning  { background-color: #d97706           !important; }
+.badge.bg-primary  { background-color: var(--gov-blue)  !important; }
+.badge.bg-info     { background-color: var(--gov-blue-mid) !important; }
+.badge.bg-secondary{ background-color: #64748b           !important; }
+.badge.bg-light    {
+    background-color: var(--gov-blue-light) !important;
+    color: var(--gov-blue) !important;
+    border: 1px solid var(--gov-border);
+}
+
+/* ── Status-specific text colours ──────────────────────────────────── */
+.text-muted { color: var(--gov-text-muted) !important; }
+.text-primary { color: var(--gov-blue) !important; }
+
+/* ── Section headings inside admin/citizen pages ────────────────────── */
+.card-body h6 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gov-blue);
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid var(--gov-border);
+    margin-bottom: 0.85rem;
+}
+
+/* ── vstack gap cards (citizen/admin list items) ────────────────────── */
+.vstack .card {
+    border-left: 3px solid var(--gov-blue);
+}
+
+.vstack .card:has(.badge.bg-success) {
+    border-left-color: var(--gov-green);
+}
+.vstack .card:has(.badge.bg-danger) {
+    border-left-color: var(--gov-red);
+}
+.vstack .card:has(.badge.bg-warning) {
+    border-left-color: #d97706;
+}
+
+/* ── Textarea ────────────────────────────────────────────────────────── */
+textarea.form-control { resize: vertical; }
+
+/* ── Footer ─────────────────────────────────────────────────────────── */
 footer {
-    border-top: 1px solid #dde3ee;
+    border-top: 2px solid var(--gov-border);
+    background-color: #e8edf5;
+    padding: 1.25rem 0;
+}
+
+footer small {
+    color: var(--gov-text-muted);
+    font-size: 0.8rem;
+}
+
+/* ── Dashboard header section ───────────────────────────────────────── */
+.mb-4 > h3 {
+    color: var(--gov-blue);
+}
+
+/* Zone info alert on admin pages */
+.alert-info .badge.bg-primary {
+    background-color: var(--gov-amber) !important;
+    color: #000 !important;
+}
+
+/* ── Tax/payment highlight ───────────────────────────────────────────── */
+h5.mb-0.text-primary {
+    color: var(--gov-blue) !important;
+    font-weight: 700;
+}
+
+/* ── Scrollbar (Webkit) ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--gov-bg); }
+::-webkit-scrollbar-thumb { background: #b0bdce; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gov-blue-mid); }
+
+/* ── Responsive tweaks ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .card-body { padding: 1rem; }
+    .table thead th { font-size: 0.72rem; padding: 0.55rem 0.65rem; }
+    .table tbody td { padding: 0.55rem 0.65rem; }
+    .module-card .card-body { padding: 1.25rem 0.75rem; }
+    h3 { font-size: 1.1rem; }
 }
