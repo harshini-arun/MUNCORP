@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h4 class="mb-1"><i class="bi bi-megaphone me-2"></i>Raise a Public Grievance</h4>
+                <p class="text-muted">If your grievance is about a delayed request, we'll check whether it's actually overdue before accepting it.</p>
+
+                <form method="POST" action="{{ url_for('grievance.raise_grievance') }}" novalidate>
+
+                    <div class="mb-3">
+                        <label class="form-label">Select Category</label>
+                        <select class="form-select" name="reference_type" id="reference_type">
+                            <option value="Birth" {{ 'selected' if request.form.get('reference_type') == 'Birth' }}>Birth Registration</option>
+                            <option value="Death" {{ 'selected' if request.form.get('reference_type') == 'Death' }}>Death Registration</option>
+                            <option value="License" {{ 'selected' if request.form.get('reference_type') == 'License' }}>License Application</option>
+                            <option value="Sanitation" {{ 'selected' if request.form.get('reference_type') == 'Sanitation' }}>Sanitation Request</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="ref-id-wrap" style="display:none;">
+                        <label class="form-label">Request ID</label>
+                        <input type="text" class="form-control" name="reference_id" id="reference_id"
+                               value="{{ request.form.get('reference_id', '') }}"
+                               placeholder="The numeric ID shown in My Registrations">
+                        <div class="form-text">Find this under "My Registrations" &mdash; e.g. BR<strong>001</strong> means ID 1.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="4" required
+                                  placeholder="Describe the issue (at least 10 characters)">{{ request.form.get('description', '') }}</textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-send me-1"></i>Submit Grievance</button>
+                        <a href="{{ url_for('citizen.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+                <a href="{{ url_for('grievance.my_grievances') }}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-list-check me-1"></i>View My Grievances
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var sel = document.getElementById('reference_type');
+    var wrap = document.getElementById('ref-id-wrap');
+    function sync() { wrap.style.display = (sel.value === 'General') ? 'none' : 'block'; }
+    sel.addEventListener('change', sync);
+    sync();
+});
+</script>
+{% endblock %}

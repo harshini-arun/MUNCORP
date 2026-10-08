@@ -23,9 +23,12 @@ def _modules():
          "url": url_for("registration.death_registration")},
         {"name": "License Registration", "icon": "bi-card-checklist",
          "url": url_for("registration.license_registration")},
-        {"name": "Tax Payment", "icon": "bi-cash-coin"},
-        {"name": "Public Grievance", "icon": "bi-megaphone"},
-        {"name": "Sanitation Request", "icon": "bi-trash"},
+        {"name": "Tax Payment", "icon": "bi-cash-coin",
+         "url": url_for("tax.tax_payment")},
+        {"name": "Public Grievance", "icon": "bi-megaphone",
+         "url": url_for("grievance.raise_grievance")},
+        {"name": "Sanitation Request", "icon": "bi-trash",
+        "url": url_for("sanitation.sanitation_request")},
     ]
 
 

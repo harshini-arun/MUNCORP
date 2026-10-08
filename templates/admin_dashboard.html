@@ -3,6 +3,18 @@
 <div class="mb-4">
     <h3><i class="bi bi-speedometer2 me-2"></i>Administrator Dashboard</h3>
     <p class="text-muted">Welcome, {{ user_name }}. Manage municipal services below.</p>
+    {% if zone_min is not none and zone_max is not none %}
+    <div class="alert alert-info d-flex align-items-center py-2 mb-0" role="alert">
+        <i class="bi bi-geo-alt-fill me-2 fs-5"></i>
+        <span>
+            <strong>Your Zone:</strong> Citizen IDs
+            <span class="badge bg-primary fs-6 mx-1">{{ zone_min }}</span>
+            &ndash;
+            <span class="badge bg-primary fs-6 mx-1">{{ zone_max }}</span>
+            &nbsp;— only citizens and requests in this range are visible to you.
+        </span>
+    </div>
+    {% endif %}
 </div>
 
 <div class="row g-3">
@@ -11,7 +23,12 @@
         <a href="{{ module.url if module.url else url_for('admin.module_placeholder', module_name=module.name.lower().replace(' ', '-')) }}"
            class="text-decoration-none">
             <div class="card module-card h-100 shadow-sm">
-                <div class="card-body text-center py-4">
+                <div class="card-body text-center py-4 position-relative">
+                    {% if module.badge %}
+                    <span class="position-absolute top-0 end-0 mt-2 me-2 badge rounded-pill bg-danger">
+                        {{ module.badge }}
+                    </span>
+                    {% endif %}
                     <i class="bi {{ module.icon }} fs-2 text-primary"></i>
                     <h6 class="mt-2 mb-0">{{ module.name }}</h6>
                 </div>

@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h4 class="mb-1"><i class="bi bi-trash me-2"></i>Sanitation Request</h4>
+                <p class="text-muted">Report a sanitation issue in your area. Status will be set to <strong>Pending</strong> until an administrator schedules or rejects it.</p>
+
+                <form method="POST" action="{{ url_for('sanitation.sanitation_request') }}" novalidate>
+                    <div class="mb-3">
+                        <label class="form-label">Citizen ID</label>
+                        <input type="text" class="form-control" value="{{ session.get('userId') }}" disabled>
+                        <div class="form-text">Automatically set to your logged-in Citizen ID.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Area PIN Code</label>
+                        <input type="text" class="form-control" name="area_pin" maxlength="6"
+                               placeholder="6-digit PIN code of the affected area" required>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-1"></i>Submit
+                        </button>
+                        <a href="{{ url_for('citizen.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -28,6 +28,7 @@ from mysql.connector import Error as MySQLError
 from database import get_db_connection
 from routes.auth import role_required
 from routes.hospital import verify_medical_cert_code, mark_cert_code_used
+from routes.admin_utils import get_admin_zone
 
 registration_bp = Blueprint("registration", __name__)
 
@@ -158,6 +159,13 @@ def birth_registration():
 @registration_bp.route("/admin/birth-registrations", methods=["GET"])
 @role_required("admin")
 def admin_birth_registrations():
+    zone_min = zone_max = None
+    try:
+        zone_min, zone_max = get_admin_zone(session["userId"])
+    except (ValueError, MySQLError) as exc:
+        flash(f"Could not load your zone: {exc}", "error")
+        return redirect(url_for("admin.dashboard"))
+
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
@@ -168,8 +176,10 @@ def admin_birth_registrations():
                    c.name AS citizen_name
             FROM Birth_Registration b
             LEFT JOIN Citizen c ON c.citizenId = b.Parent_Citizen_ID
+            WHERE b.Parent_Citizen_ID BETWEEN %s AND %s
             ORDER BY FIELD(b.Status, 'Pending', 'Approved', 'Rejected'), b.Birth_Date DESC
-            """
+            """,
+            (zone_min, zone_max)
         )
         records = cursor.fetchall()
         cursor.close()
@@ -198,6 +208,8 @@ def admin_birth_registrations():
         title="Birth Registrations",
         rows=rows,
         approve_endpoint="registration.admin_birth_action",
+        zone_min=zone_min,
+        zone_max=zone_max,
         back_url=url_for("admin.dashboard"),
     )
 
@@ -285,6 +297,13 @@ def death_registration():
 @registration_bp.route("/admin/death-registrations", methods=["GET"])
 @role_required("admin")
 def admin_death_registrations():
+    zone_min = zone_max = None
+    try:
+        zone_min, zone_max = get_admin_zone(session["userId"])
+    except (ValueError, MySQLError) as exc:
+        flash(f"Could not load your zone: {exc}", "error")
+        return redirect(url_for("admin.dashboard"))
+
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
@@ -295,8 +314,10 @@ def admin_death_registrations():
                    c.name AS citizen_name
             FROM Death_Registration d
             LEFT JOIN Citizen c ON c.citizenId = d.Citizen_ID
+            WHERE d.Citizen_ID BETWEEN %s AND %s
             ORDER BY FIELD(d.Status, 'Pending', 'Approved', 'Rejected'), d.Death_Date DESC
-            """
+            """,
+            (zone_min, zone_max)
         )
         records = cursor.fetchall()
         cursor.close()
@@ -324,6 +345,8 @@ def admin_death_registrations():
         title="Death Registrations",
         rows=rows,
         approve_endpoint="registration.admin_death_action",
+        zone_min=zone_min,
+        zone_max=zone_max,
         back_url=url_for("admin.dashboard"),
     )
 
@@ -406,6 +429,13 @@ def license_registration():
 @registration_bp.route("/admin/licenses", methods=["GET"])
 @role_required("admin")
 def admin_licenses():
+    zone_min = zone_max = None
+    try:
+        zone_min, zone_max = get_admin_zone(session["userId"])
+    except (ValueError, MySQLError) as exc:
+        flash(f"Could not load your zone: {exc}", "error")
+        return redirect(url_for("admin.dashboard"))
+
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
@@ -415,8 +445,10 @@ def admin_licenses():
                    l.Renewal_Date, l.Status, c.name AS citizen_name
             FROM License l
             LEFT JOIN Citizen c ON c.citizenId = l.Citizen_ID
+            WHERE l.Citizen_ID BETWEEN %s AND %s
             ORDER BY FIELD(l.Status, 'Pending', 'Approved', 'Rejected'), l.Renewal_Date DESC
-            """
+            """,
+            (zone_min, zone_max)
         )
         records = cursor.fetchall()
         cursor.close()
@@ -442,6 +474,8 @@ def admin_licenses():
         title="License Applications",
         rows=rows,
         approve_endpoint="registration.admin_license_action",
+        zone_min=zone_min,
+        zone_max=zone_max,
         back_url=url_for("admin.dashboard"),
     )
 

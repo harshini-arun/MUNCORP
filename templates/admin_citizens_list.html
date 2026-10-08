@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-people me-2"></i>Citizens</h4>
+    <a href="{{ back_url }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Dashboard</a>
+</div>
+
+{% if zone_min is not none and zone_max is not none %}
+<div class="alert alert-info py-2 mb-3">
+    <i class="bi bi-geo-alt-fill me-1"></i>
+    Showing citizens in your zone: Citizen IDs
+    <strong>{{ zone_min }}</strong> &ndash; <strong>{{ zone_max }}</strong>
+</div>
+{% endif %}
+
+<div class="card shadow-sm mb-3"><div class="card-body">
+    <form method="GET" action="{{ url_for('citizens_admin.list_citizens') }}" class="row g-2">
+        <div class="col-md-10">
+            <input type="text" class="form-control" name="q" value="{{ search }}"
+                   placeholder="Search by name or exact Citizen ID">
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>Search</button>
+        </div>
+    </form>
+    {% if search %}
+    <a href="{{ url_for('citizens_admin.list_citizens') }}" class="small mt-2 d-inline-block">Clear search</a>
+    {% endif %}
+</div></div>
+
+{% if citizens %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle bg-white shadow-sm rounded">
+        <thead>
+            <tr>
+                <th>ID</th><th>Name</th><th>Phone</th><th>Email</th><th>Account</th>
+                <th class="text-center">Birth</th><th class="text-center">Death</th>
+                <th class="text-center">License</th><th class="text-center">Sanitation</th>
+                <th class="text-center">Tax</th><th class="text-center">Open Griev.</th><th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in citizens %}
+            <tr>
+                <td>{{ c.citizenId }}</td>
+                <td>{{ c.name }}</td>
+                <td>{{ c.phone or '—' }}</td>
+                <td class="small">{{ c.email or '—' }}</td>
+                <td>
+                    {% if c.password_set %}<span class="badge bg-success">Active</span>
+                    {% else %}<span class="badge bg-secondary">No password</span>{% endif %}
+                </td>
+                <td class="text-center">{{ c.birth_count }}</td>
+                <td class="text-center">{{ c.death_count }}</td>
+                <td class="text-center">{{ c.license_count }}</td>
+                <td class="text-center">{{ c.sanitation_count }}</td>
+                <td class="text-center">{{ c.tax_count }}</td>
+                <td class="text-center">
+                    {% if c.open_grievances %}<span class="badge bg-warning text-dark">{{ c.open_grievances }}</span>
+                    {% else %}0{% endif %}
+                </td>
+                <td class="text-end">
+                    <a href="{{ url_for('citizens_admin.citizen_detail', citizen_id=c.citizenId) }}"
+                       class="btn btn-sm btn-outline-primary">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card shadow-sm"><div class="card-body text-center py-5">
+    <i class="bi bi-inbox fs-1 text-muted"></i>
+    <h6 class="mt-3 text-muted">{{ 'No citizens matched that search.' if search else 'No citizens found in your zone.' }}</h6>
+</div></div>
+{% endif %}
+{% endblock %}

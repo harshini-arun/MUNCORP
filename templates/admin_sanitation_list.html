@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>{{ title }}</h4>
+    <h4 class="mb-0"><i class="bi bi-trash me-2"></i>Sanitation Requests</h4>
     <a href="{{ back_url }}" class="btn btn-outline-secondary btn-sm">
         <i class="bi bi-arrow-left me-1"></i>Dashboard
     </a>
@@ -22,43 +22,43 @@
             <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
                 <div>
                     <h6 class="mb-1">
-                        Record #{{ row.id }}
+                        Request #{{ row.id }} &mdash; Area {{ row.area_pin }}
                         {% if row.status == 'Pending' %}
                             <span class="badge bg-warning text-dark ms-1">Pending</span>
-                        {% elif row.status == 'Approved' %}
-                            <span class="badge bg-success ms-1">Approved</span>
+                        {% elif row.status == 'Scheduled' %}
+                            <span class="badge bg-success ms-1">Scheduled</span>
                         {% else %}
                             <span class="badge bg-danger ms-1">Rejected</span>
+                        {% endif %}
+                        {% if row.status == 'Pending' and row.duplicate_count > 1 %}
+                            <span class="badge bg-info text-dark ms-1">
+                                <i class="bi bi-exclamation-triangle me-1"></i>{{ row.duplicate_count }} reports in this area
+                            </span>
                         {% endif %}
                     </h6>
                     <p class="text-muted small mb-2">
                         Submitted by: {{ row.citizen_name }} (Citizen ID: {{ row.citizen_id }})
+                        on {{ row.requested_date }}
+                        {% if row.schedule_date %} &nbsp;|&nbsp; Scheduled for {{ row.schedule_date }}{% endif %}
                     </p>
                 </div>
 
                 {% if row.status == 'Pending' %}
-                <div class="d-flex gap-2">
-                    <form method="POST" action="{{ url_for(approve_endpoint, reg_id=row.id, action='approve') }}">
-                        <button type="submit" class="btn btn-success btn-sm">
-                            <i class="bi bi-check-lg me-1"></i>Approve
+                <div class="d-flex gap-2 flex-wrap align-items-start">
+                    <form method="POST" action="{{ url_for('sanitation.admin_schedule_sanitation', request_id=row.id) }}"
+                          class="d-flex gap-2">
+                        <input type="date" name="schedule_date" class="form-control form-control-sm" required>
+                        <button type="submit" class="btn btn-success btn-sm text-nowrap">
+                            <i class="bi bi-calendar-check me-1"></i>Schedule
                         </button>
                     </form>
-                    <form method="POST" action="{{ url_for(approve_endpoint, reg_id=row.id, action='reject') }}">
+                    <form method="POST" action="{{ url_for('sanitation.admin_reject_sanitation', request_id=row.id) }}">
                         <button type="submit" class="btn btn-outline-danger btn-sm">
                             <i class="bi bi-x-lg me-1"></i>Reject
                         </button>
                     </form>
                 </div>
                 {% endif %}
-            </div>
-
-            <hr class="my-2">
-            <div class="row small">
-                {% for label, value in row.fields %}
-                <div class="col-sm-6 col-lg-4 mb-1">
-                    <span class="text-muted">{{ label }}:</span> <strong>{{ value }}</strong>
-                </div>
-                {% endfor %}
             </div>
         </div>
     </div>
@@ -68,7 +68,7 @@
 <div class="card shadow-sm">
     <div class="card-body text-center py-5">
         <i class="bi bi-inbox fs-1 text-muted"></i>
-        <h6 class="mt-3 text-muted">No records found.</h6>
+        <h6 class="mt-3 text-muted">No sanitation requests found.</h6>
     </div>
 </div>
 {% endif %}

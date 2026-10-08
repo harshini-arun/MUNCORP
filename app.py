@@ -24,6 +24,10 @@ from routes.citizen import citizen_bp
 from routes.admin import admin_bp
 from routes.registration import registration_bp
 from routes.hospital import hospital_bp
+from routes.sanitation import sanitation_bp
+from routes.tax import tax_bp
+from routes.grievance import grievance_bp
+from routes.citizens_admin import citizens_admin_bp
 
 
 def create_app():
@@ -36,6 +40,10 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(registration_bp)
     app.register_blueprint(hospital_bp)
+    app.register_blueprint(sanitation_bp)
+    app.register_blueprint(tax_bp)
+    app.register_blueprint(grievance_bp)
+    app.register_blueprint(citizens_admin_bp)
 
     @app.route("/")
     def index():

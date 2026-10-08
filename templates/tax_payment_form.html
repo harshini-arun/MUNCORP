@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h4 class="mb-1"><i class="bi bi-cash-coin me-2"></i>Tax Payment</h4>
+                <p class="text-muted">Enter your details to calculate the tax due. Nothing is charged until you confirm on the next screen.</p>
+
+                <form method="POST" action="{{ url_for('tax.calculate') }}" novalidate>
+                    <div class="mb-3">
+                        <label class="form-label">Tax Type</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="tax_type" id="tt-prop" value="Property" checked>
+                            <label class="btn btn-outline-primary" for="tt-prop"><i class="bi bi-house me-1"></i>Property Tax</label>
+                            <input type="radio" class="btn-check" name="tax_type" id="tt-bus" value="Business">
+                            <label class="btn btn-outline-primary" for="tt-bus"><i class="bi bi-shop me-1"></i>Business Tax</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" id="asset-label">Property ID</label>
+                        <input type="text" class="form-control" name="asset_id" id="asset_id" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" id="amount-label">Property Value (Rs.)</label>
+                        <input type="number" step="0.01" min="0" class="form-control" name="amount" id="amount" required>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-calculator me-1"></i>Calculate Tax</button>
+                        <a href="{{ url_for('citizen.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+                <a href="{{ url_for('tax.history') }}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-clock-history me-1"></i>View My Payment History
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Relabel the two fields when the tax type changes.
+document.addEventListener('DOMContentLoaded', function () {
+    var prop = document.getElementById('tt-prop');
+    var bus = document.getElementById('tt-bus');
+    var assetLabel = document.getElementById('asset-label');
+    var amountLabel = document.getElementById('amount-label');
+    function sync() {
+        if (bus.checked) {
+            assetLabel.textContent = 'Business ID';
+            amountLabel.textContent = 'Annual Business Income (Rs.)';
+        } else {
+            assetLabel.textContent = 'Property ID';
+            amountLabel.textContent = 'Property Value (Rs.)';
+        }
+    }
+    prop.addEventListener('change', sync);
+    bus.addEventListener('change', sync);
+    sync();
+});
+</script>
+{% endblock %}
